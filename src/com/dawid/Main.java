@@ -5,6 +5,7 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
+        System.out.println("Podaj tekst: ");
         Scanner scanner = new Scanner(System.in);
         String userText = scanner.nextLine().toLowerCase();
         String[] wordsInUserText = userText.split(" ");
@@ -17,32 +18,29 @@ public class Main {
     private static Map<Character, Set<String>> buildMapWithKeys(char[] textArray) {
         Map<Character, Set<String>> wordsMap = new HashMap<>();
         Set<Character> charactersSet = new HashSet<>();
-        for(Character character : textArray) {
-            if(character >= 97 && character <= 122)
+        for (Character character : textArray) {
+            if (character >= 97 && character <= 122)
                 charactersSet.add(character);
         }
-        for(Character character : charactersSet) {
-            wordsMap.put(character, new TreeSet<>());
-        }
+        charactersSet.forEach(character -> wordsMap.put(character, new TreeSet<>()));
         return wordsMap;
     }
 
     private static void addWordsToMap(String[] wordsInUserText, Map<Character, Set<String>> wordsMap) {
-        for(String word : wordsInUserText) {
-            String clearedWord = word.replaceAll("[^A-Za-z]", "");
-            for(Character key : wordsMap.keySet()) {
-                if(clearedWord.contains(key.toString())) {
-                    Set<String> wordSet = wordsMap.get(key);
-                    wordSet.add(clearedWord);
-                    wordsMap.put(key, wordSet);
-                }
-            }
-        }
+        Arrays.stream(wordsInUserText)
+                .map(word -> word.replaceAll("[^A-Za-z]", ""))
+                .forEach(word -> wordsMap.keySet()
+                        .stream()
+                        .filter(key -> word.contains(key.toString()))
+                        .forEach(key -> {
+                            Set<String> wordsSet = wordsMap.get(key);
+                            wordsSet.add(word);
+                            wordsMap.put(key, wordsSet);
+                        }));
+
     }
 
     private static void printResults(Map<Character, Set<String>> wordsMap) {
-        for(Map.Entry<Character, Set<String>> entry : wordsMap.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
-        }
+        wordsMap.forEach((key, value) -> System.out.println(key + ": " + value));
     }
 }
